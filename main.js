@@ -34,6 +34,17 @@ var Drone = function (id, name, mac, location, date, files, files_count) {
         this.files_count = files_count;
 };
 
+var File = function (id, date_loaded, date_first_record, date_last_record, url, ref, contents, contents_count, droneid) {
+	this._id = id;
+	this.date_loaded = date_loaded;
+	this.date_first_record = date_first_record;
+        this.date_last_record = date_last_record;
+        this.url = url;
+        this.ref = ref;
+        this.contents = contents;
+        this.contents_count = contents_count;
+        this.droneid = droneid;
+};
 
 request(dronesSettings, function (error, response, dronesString) {
 	var drones = JSON.parse(dronesString);
@@ -50,9 +61,34 @@ request(dronesSettings, function (error, response, dronesString) {
                                 drone.last_packet_date, 
                                 drone.files, 
                                 drone.files_count));
+                        
+                        var filesSettings = new Settings("/files?drone_id.is=" + drone.id + "&format=json&date_loaded.greaterOrEqual=2016-12-07T12:00:00");
+                        ///files?drone_id.is=cc3f2b0604a543399edd0d579447513f&date_loaded.greaterOrEqual=2016-10-13T16:40:05.255Z&format=json
+                        console.log(filesSettings);
+                        request(filesSettings, function (error, response, filesString){
+                            var files = JSON.parse(filesString);
+ 
+                            files.forEach(function (file){
+                                var fileSettings = new Settings("/files/" + file.id + "?format=json");
+                                request(fileSettings, function (error, response, fileString){
+                                    var file = JSON.parse(fileString);
+                                    //console.log(file);
+                                    dal.insertFile(new File(
+                                            file.id, 
+                                            file.date_loaded, 
+                                            file.date_first_record, 
+                                            file.date_last_record,
+                                            file.url,
+                                            file.ref,
+                                            file.contents,
+                                            file.contents_count,
+                                            drone.id));
+                                        }); 
 
                 });
             });
         });
-            
+        });
+        });
+        
 console.log("Check Drones");
