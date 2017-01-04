@@ -6,7 +6,7 @@ var url = 'mongodb://localhost:27017/Drones';
 
 var dal = {
 
-	connect: function (err, result) {
+	connect: function (error, result) {
 		MongoClient.connect(url, function (error, db) {
 			if (error)
 				throw new Error(error);
@@ -18,7 +18,7 @@ var dal = {
         
         clearDrone: function (call) {
 		this.connect(null, function (db) {
-			db.collection('drones').drop(function (err, result) {
+			db.collection('drones').drop(function (error, result) {
 				//callback(result);
 				db.close();
 			});
@@ -27,7 +27,7 @@ var dal = {
 	
         insertDrone: function (drone, callback) {
 		this.connect(null, function (db) {
-			db.collection('drones').insert(drone, function (err, result) {
+			db.collection('drones').insert(drone, function (error, result) {
 				//callback(result);
 				db.close();
 			});
@@ -36,7 +36,7 @@ var dal = {
         
         clearFile: function (call) {
 		this.connect(null, function (db) {
-			db.collection('files').drop(function (err, result) {
+			db.collection('files').drop(function (error, result) {
 				//callback(result);
 				db.close();
 			});
@@ -45,7 +45,7 @@ var dal = {
         
         insertFile: function (file, callback) {
 		this.connect(null, function (db) {
-			db.collection('files').insert(file, function (err, result) {
+			db.collection('files').insert(file, function (error, result) {
 				//callback(result);
 				db.close();
 			});
@@ -54,7 +54,7 @@ var dal = {
         
         clearContent: function (call) {
 		this.connect(null, function (db) {
-			db.collection('contents').drop(function (err, result) {
+			db.collection('contents').drop(function (error, result) {
 				//callback(result);
 				db.close();
 			});
@@ -63,7 +63,7 @@ var dal = {
         
         insertContent: function (content, callback) {
 		this.connect(null, function (db) {
-			db.collection('contents').insert(content, function (err, result) {
+			db.collection('contents').insert(content, function (error, result) {
 				//callback(result);
 				db.close();
                         });
