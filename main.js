@@ -133,3 +133,5 @@ request(dronesSettings, function (error, response, dronesString) {              
 });
 
 console.log("Check Drones");                                                    //Drones Checken
+
+//Code werkt niet; Unexpected token u
