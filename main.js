@@ -1,24 +1,24 @@
-// npm install request --save 
-var request = require("request");
-var dal = require('./storage.js');
+
+var request = require("request");                                               //request installeren
+var dal = require('./storage.js');                                              //linken aan dal, opslag
 
 // http://stackoverflow.com/questions/10888610/ignore-invalid-self-signed-ssl-certificate-in-node-js-with-https-request
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";                                 
 
 
-var BASE_URL = "https://web-ims.thomasmore.be/datadistribution/API/2.0";
-var Settings = function (url) {
+var BASE_URL = "https://web-ims.thomasmore.be/datadistribution/API/2.0";        //basis url, nodig om gegevens uit te laden
+var Settings = function (url) {                                                 //variabele settings, met de nodige gegevens, zoals authorization, zeer belangrijk. 
 	this.url = BASE_URL + url;
 	this.method = "GET";
 	this.qs = {format: 'json'};
 	this.headers = {
-		authorization: "Basic aW1zOno1MTJtVDRKeVgwUExXZw=="
+		authorization: "Basic aW1zOno1MTJtVDRKeVgwUExXZw=="             
 	};
 };
 
-var Drone = function (id, name, mac, location, date, files, files_count) {
+var Drone = function (id, name, mac, location, date, files, files_count) {      
 	this._id = id;
-	this.name = name;
+	this.name = name;                                                       //variabele 'Drone' met zijn attributen
 	this.mac = mac;
         this.location = location;
         this.date = date;
@@ -28,7 +28,7 @@ var Drone = function (id, name, mac, location, date, files, files_count) {
 
 var File = function (id, date_loaded, date_first_record, date_last_record, url, ref, contents, contents_count, droneid) {
 	this._id = id;
-	this.date_loaded = date_loaded;
+	this.date_loaded = date_loaded;                                         //variabele 'File' met zijn attributen
 	this.date_first_record = date_first_record;
         this.date_last_record = date_last_record;
         this.url = url;
@@ -39,8 +39,8 @@ var File = function (id, date_loaded, date_first_record, date_last_record, url, 
 };
 
 var Content = function (id, mac, datetime, rssi, url, ref, droneid, fileid) {
-	this._id = id;
-	this.mac = mac;
+	this._id = id;                                                          
+	this.mac = mac;                                                         //variabele 'Content' met zijn attributen
 	this.datetime = datetime;
         this.rssi = rssi;
         this.url = url;
@@ -49,22 +49,21 @@ var Content = function (id, mac, datetime, rssi, url, ref, droneid, fileid) {
         this.fileid = fileid;
 };
 
-var dronesSettings = new Settings("/drones?format=json");
+var dronesSettings = new Settings("/drones?format=json");                       //nieuwe settings, json formaat
 
-dal.clearDrone();
-dal.clearFile();
-dal.clearContent();
+dal.clearDrone();                                                               //'Drone' leegmaken
+dal.clearFile();                                                                //'File' leegmaken
+dal.clearContent();                                                             //'Content' leegmaken    
 
-request(dronesSettings, function (error, response, dronesString) {
+request(dronesSettings, function (error, response, dronesString) {              //droneSettings opvragen
 	var drones = JSON.parse(dronesString);
-	/*console.log(drones);
-	console.log("***************************************************************************");*/
-	drones.forEach(function (drone) {
-		var droneSettings = new Settings("/drones/" + drone.id + "?format=json");
+
+	drones.forEach(function (drone) {                                           
+		var droneSettings = new Settings("/drones/" + drone.id + "?format=json");   //gegevens van 'Drones' opvragen met drone_id
 		request(droneSettings, function (error, response, droneString) {
-			var drone = JSON.parse(droneString);
-			dal.insertDrone(new Drone(
-                                drone.id, 
+			var drone = JSON.parse(droneString);                    
+			dal.insertDrone(new Drone(                              
+                                drone.id,                                       //attributen die we willen opvragen van 'Drones'                  
                                 drone.name, 
                                 drone.mac_address, 
                                 drone.location, 
@@ -73,19 +72,19 @@ request(dronesSettings, function (error, response, dronesString) {
                                 drone.files_count));
                         
                         var filesSettings = new Settings("/files?drone_id.is=" + drone.id + "&format=json&date_loaded.greaterOrEqual=2016-12-07T12:00:00");
-                        ///files?drone_id.is=cc3f2b0604a543399edd0d579447513f&date_loaded.greaterOrEqual=2016-10-13T16:40:05.255Z&format=json
+                                                                                    
+                                                                                // gegevens van 'Files' opvragen met drone_id
                         console.log(filesSettings);
                         request(filesSettings, function (error, response, filesString){
                             var files = JSON.parse(filesString);
-                            /*console.log(files);
-                            console.log("***************************************************************************");*/
+
                             files.forEach(function (file){
-                                var fileSettings = new Settings("/files/" + file.id + "?format=json");
+                                var fileSettings = new Settings("/files/" + file.id + "?format=json");  //gegevens van 'Files' opvragen met file_id
                                 request(fileSettings, function (error, response, fileString){
                                     var file = JSON.parse(fileString);
                                     //console.log(file);
                                     dal.insertFile(new File(
-                                            file.id, 
+                                            file.id,                            //attributen die we willen opvragen van 'Files'
                                             file.date_loaded, 
                                             file.date_first_record, 
                                             file.date_last_record,
@@ -95,18 +94,23 @@ request(dronesSettings, function (error, response, dronesString) {
                                             file.contents_count,
                                             drone.id));
                                           
-                                    var contentsSettings = new Settings("/files/" + file.id + "/contents?format=json");
+                                    var contentsSettings = new Settings("/files/" + file.id + "/contents?format=json"); 
+                                                                                
+                                                                                //gegevens van 'Contents' opvragen met file_id                   
+                             
                                     request(contentsSettings, function (error, response, contentsString){
                                         var contents = JSON.parse(contentsString);
-                                        /*console.log(contents);
-                                        console.log("***************************************************************************");*/
+
                                         contents.forEach(function (content){
                                            var contentSettings = new Settings("/files/" + file.id + "/contents/"+content.id+"?format=json");
+                                           
+                                                                                //gegevens van 'Contents' opvragen met content_id 
+                                                                                
                                            request(contentSettings, function (error, response, contentString){
                                                var content = JSON.parse(contentString);
                                                //console.log(content);
                                                dal.insertContent(new Content(
-                                                       content.id,
+                                                       content.id,              //attributen die we willen opvragen van 'Contents'
                                                        content.mac_address,
                                                        content.datetime,
                                                        content.rssi,
@@ -124,4 +128,4 @@ request(dronesSettings, function (error, response, dronesString) {
 });
 });
 
-console.log("Check Drones");
+console.log("Check Drones");                                                    //Drones Checken
