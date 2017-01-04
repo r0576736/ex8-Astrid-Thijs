@@ -1,3 +1,7 @@
+//Samenwerking met Jelle Van Loock, Kevin Aerts, Genzo Vandervelden.
+//En de code van opdracht 7 van Luc Steffens
+
+
 
 var request = require("request");                                               //request installeren
 var dal = require('./storage.js');                                              //linken aan dal, opslag
